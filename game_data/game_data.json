@@ -1,0 +1,67 @@
+{
+	"01": {
+		"name": "A Loud Message",
+		"content": ["a_loud_message.jpg"],
+		"answer": "01"
+	},
+	"02": {
+		"name": "Climbing Wonderland",
+		"content": ["climbing_wonderland.jpg"],
+		"answer": "02"
+	},
+	"03": {
+		"name": "Long Live The King",
+		"content": ["long_live_the_king.jpg"],
+		"answer": "03"
+	},
+	"04": {
+		"name": "Admission Test",
+		"content": ["admission_test.jpg"],
+		"answer": "04"
+	},
+	"05": {
+		"name": "The Royal Wedding",
+		"content": ["the_royal_wedding.jpg"],
+		"answer": "05"
+	},
+	"06": {
+		"name": "It's Music To My Hands",
+		"content": ["it's_music_to_my_hands.jpg", "it's_music_to_my_hands.txt"],
+		"answer": "06"
+	},
+	"07": {
+		"name": "Diplomatic Note",
+		"content": ["diplomatic_note.jpg"],
+		"answer": "07"
+	},
+	"08": {
+		"name": "Jester Heart Festival",
+		"content": ["jester_heart_festival.jpg"],
+		"answer": "08"
+	},
+	"09": {
+		"name": "Summary Notes",
+		"content": ["summary_notes.jpg"],
+		"answer": "09"
+	},
+	"10": {
+		"name": "Proof of Wisdom",
+		"content": ["proof_of_wisdom.jpg"],
+		"answer": "10"
+	},
+	"11": {
+		"name": "The Philosopher’s Stone",
+		"content": ["the_philosopher’s_stone.jpg"],
+		"answer": "11"
+	},
+	"12": {
+		"name": "A Hobby to Amaze",
+		"content": ["a_hobby_to_amaze.jpg"],
+		"answer": "12"
+	},
+	"13": {
+		"name": "The Ace-Factor",
+		"content": ["the_ace-factor.jpg"],
+		"answer": "13"
+	}
+}
