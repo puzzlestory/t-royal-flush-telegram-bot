@@ -1,72 +1,72 @@
 {
-	"[01]": {
+	"[Prologue]": {
 		"name": "A Loud Message",
 		"description": ["a_loud_message.jpg"],
-		"answer": "01"
+		"answer": "royalvanished"
 	},
-	"[02]": {
+	"[Act 1 - A]": {
 		"name": "Climbing Wonderland",
 		"description": ["climbing_wonderland.jpg"],
-		"answer": "02"
+		"answer": "offheads"
 	},
-	"[03]": {
+	"[Act 1 - B]": {
 		"name": "Long Live The King",
 		"description": ["long_live_the_king.jpg"],
-		"answer": "03"
+		"answer": "amandine"
 	},
-	"[04]": {
+	"[Act 1 - C]": {
 		"name": "Admission Test",
 		"description": ["admission_test.jpg"],
-		"answer": "04"
+		"answer": "indigo"
 	},
-	"[05]": {
+	"[Act 1 - D]": {
 		"name": "The Royal Wedding",
 		"description": ["the_royal_wedding.jpg"],
-		"answer": "05"
+		"answer": "lovely"
 	},
-	"[06]": {
+	"[Act 1 - E]": {
 		"name": "It's Music To My Hands",
 		"description": ["it's_music_to_my_hands.jpg", "it's_music_to_my_hands.txt"],
-		"answer": "06"
+		"answer": "ensiferum"
 	},
-	"[07]": {
+	"[Act 1 - F]": {
 		"name": "Diplomatic Note",
 		"description": ["diplomatic_note.jpg"],
-		"answer": "07"
+		"answer": "lasvegas"
 	},
-	"[08]": {
+	"[Act 1 - G]": {
 		"name": "Jester Heart Festival",
 		"description": ["jester_heart_festival.jpg"],
-		"answer": "08"
+		"answer": "foolandthegag"
 	},
-	"[09]": {
+	"[Act 1 - H]": {
 		"name": "Summary Notes",
 		"description": ["summary_notes.jpg"],
-		"answer": "09"
+		"answer": "cardcastle"
 	},
-	"[10]": {
+	"[Act 1 - I]": {
 		"name": "Proof of Wisdom",
 		"description": ["proof_of_wisdom.jpg"],
-		"answer": "10"
+		"answer": "halo"
 	},
-	"[11]": {
+	"[Act 1 - J]": {
 		"name": "The Philosopher’s Stone",
 		"description": ["the_philosopher’s_stone.jpg"],
-		"answer": "11"
+		"answer": "inmortali"
 	},
-	"[12]": {
+	"[Act 1 - K]": {
 		"name": "A Hobby to Amaze",
 		"description": ["a_hobby_to_amaze.jpg"],
-		"answer": "12"
+		"answer": "castle"
 	},
-	"[13]": {
+	"[Act 1 - L]": {
 		"name": "The Ace-Factor",
 		"description": ["the_ace-factor.jpg"],
-		"answer": "13"
+		"answer": "chip"
 	},
-	"[14]": {
+	"[Act 2 - A]": {
 		"name": "The Solitaire Diamond",
 		"description": ["the_solitaire_diamond.jpg"],
-		"answer": "22"
+		"answer": "peruzzi"
 	}
 }
