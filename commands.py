@@ -51,7 +51,7 @@ def get_options_keyboard(data, user_id, mode):
     challs = data[user_id]
 
     if mode == 'TRY': names = [c.name for c in challs.values() if not c.is_completed]
-    elif mode == 'SHOW': names = [f"✅ {c.name}" if c.is_completed else c.name for c in challs.values()]
+    elif mode == 'SHOW': names = [f"{c.name} ✅" if c.is_completed else c.name for c in challs.values()]
 
     keyboard = [[InlineKeyboardButton(n, callback_data=n)] for n in names]
 
