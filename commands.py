@@ -1,62 +1,112 @@
+from os import path
 from json import load, dump
+
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
 from telegram.ext import ConversationHandler
 
-CUR_RIGHT_ANSWER = ''
-CHECK_ANSWER = range(1)
+CUR_CHALL_IDX = str()
+SHOWS_CHOSEN_CHALL, CHOOSE_CHALL_TO_ANSWER = range(2)
 
-DATA_DIR = 'game_data/'
-DATA_PATH = 'game_data/teste.json'
+DATA_DIR = path.join('.', 'game_data')
+DATA_PATH = path.join(DATA_DIR, 'game_data.json')
 
-def show(update, context):
+class Chall:
+    def __init__(self, name, description, answer):
+        self.name = name
+        self.description = description
+        self.answer = answer
+
+def load_data_from_csv():
     with open(DATA_PATH, 'r') as f:
         game_data = load(f)
 
-    challs = game_data.keys()
-    update.message.reply_text('\n'.join(challs))
+    challs = dict()
+    for c_idx, data in game_data.items():
+        name_str = 'name'
+        c_name = f'{c_idx} {data[name_str]}'
+        chall = Chall(c_name, data['description'], data['answer'])
+        challs[c_idx] = chall
 
-def try_to_answer(update, context):
-    global CUR_RIGHT_ANSWER
+    return challs
 
-    if not context.args:
-        error_txt = 'Invalid input. Try with /try <chall_name>...'
-        update.message.reply_text(error_txt)
+def get_options_keyboard(data):
+    challs = load_data_from_csv()
+    data['challs'] = challs
 
-        return ConversationHandler.END
+    names = [c.name for c in challs.values()]
+    keyboard = list()
+    for i in range(len(names))[::2]:
+        line_keys = [InlineKeyboardButton(names[i], callback_data=names[i]),]
+        if i + 1 < len(names):
+            line_keys.append(InlineKeyboardButton(names[i + 1], callback_data=names[i + 1]))
 
-    with open(DATA_PATH, 'r') as f:
-        game_data = load(f)
+        keyboard.append(line_keys)
 
-    chall = ' '.join(context.args)
-    if chall not in game_data.keys():
-        error_txt = 'Challenge not found. Try again...'
-        update.message.reply_text(error_txt)
+    return InlineKeyboardMarkup(keyboard)
 
-        return ConversationHandler.END
+def show_challs(update, context):
+    reply_markup = get_options_keyboard(context.chat_data)
+    update.message.reply_text('Choose a challenge to view', reply_markup=reply_markup)
 
-    chat_id = update.message.chat_id
-    for c_filename in game_data[chall]['content']:
-        c_filename = f"{DATA_DIR}{c_filename}"
+    return SHOWS_CHOSEN_CHALL
 
-        if c_filename.endswith('.jpg'):
-            context.bot.send_photo(chat_id=chat_id, photo=open(c_filename, 'rb'), caption=chall)
-        elif c_filename.endswith('.txt'):
-            c_file = open(c_filename)
-            context.bot.send_message(chat_id=chat_id, text=c_file.read())
+def send_description(description, chat_id, bot):
+    for d_filename in description:
+        d_filename = path.join(DATA_DIR, d_filename)
 
-    intro_txt = 'Type your answer'
-    update.message.reply_text(intro_txt)
-    CUR_RIGHT_ANSWER = game_data[chall]['answer']
+        if d_filename.endswith('.jpg'):
+            d_photo = open(d_filename, 'rb')
+            bot.send_photo(chat_id=chat_id, photo=d_photo)
+        elif d_filename.endswith('.txt'):
+            d_txt = open(d_filename).read()
+            bot.send_message(chat_id=chat_id, text=f'<code>{d_txt}</code>', parse_mode='HTML')
 
-    return CHECK_ANSWER
+def choose_chall_to_show(update, context):
+    query = update.callback_query
+    query.answer()
+    chall_idx = query.data.split(' ')[0]
+
+    challs = context.chat_data['challs']
+    name = challs[chall_idx].name
+    description = challs[chall_idx].description
+
+    query.edit_message_text(text=f'Visu {name}\n')
+    send_description(description, update.effective_user.id, context.bot)
+
+    return ConversationHandler.END
+
+def try_answer(update, context):
+    reply_markup = get_options_keyboard(context.chat_data)
+    update.message.reply_text('Choose a challenge to try', reply_markup=reply_markup)
+
+    return CHOOSE_CHALL_TO_ANSWER
+
+def choose_chall_to_answer(update, context):
+    global CUR_CHALL_IDX
+    query = update.callback_query
+    query.answer()
+
+    chall_idx = query.data.split(' ')[0]
+
+    challs = context.chat_data['challs']
+    name = challs[chall_idx].name
+    query.edit_message_text(text=f'Tentando {name}, manda ae a resposta\n')
+
+    CUR_CHALL_IDX = chall_idx
+
+    return CHOOSE_CHALL_TO_ANSWER
 
 def check_answer(update, context):
-    global CUR_RIGHT_ANSWER
+    global CUR_CHALL_IDX
+    challs = context.chat_data['challs']
 
-    answer = update.message.text
-    if answer == CUR_RIGHT_ANSWER: result = 'Congratulations! You\'re right!'
-    else: result = 'Oh no! Errooooou, seu burro!'
+    real_answer = challs[CUR_CHALL_IDX].answer
+    user_answer = update.message.text.lower()
 
-    CUR_RIGHT_ANSWER = ''
+    if user_answer == real_answer: result = 'Parabens otaro'
+    else: result = 'Errou otaro'
+
     update.message.reply_text(result)
 
+    CUR_CHALL_IDX = str()
     return ConversationHandler.END

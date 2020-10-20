@@ -1,7 +1,8 @@
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
+from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, Filters, CallbackQueryHandler
 
 from env import TOKEN
-from commands import show, try_to_answer, check_answer, CHECK_ANSWER
+from commands import show_challs, choose_chall_to_show, SHOWS_CHOSEN_CHALL
+from commands import try_answer, choose_chall_to_answer, check_answer, CHOOSE_CHALL_TO_ANSWER
 
 def start(update, context):
     welcome_txt = ['Hello, welcome to RoyalFlushBot!']
@@ -18,11 +19,20 @@ def main():
     dp = updater.dispatcher
 
     dp.add_handler(CommandHandler('start', start))
-    dp.add_handler(CommandHandler('show', show))
     dp.add_handler(ConversationHandler(
-        entry_points=[CommandHandler('try', try_to_answer)],
+        entry_points=[CommandHandler('show', show_challs)],
         states={
-            CHECK_ANSWER: [MessageHandler(Filters.text, check_answer)]
+            SHOWS_CHOSEN_CHALL: [CallbackQueryHandler(choose_chall_to_show)],
+        },
+        fallbacks=[]
+    ))
+    dp.add_handler(ConversationHandler(
+        entry_points=[CommandHandler('try', try_answer)],
+        states={
+            CHOOSE_CHALL_TO_ANSWER: [
+                CallbackQueryHandler(choose_chall_to_answer),
+                MessageHandler(Filters.text, check_answer)
+            ]
         },
         fallbacks=[]
     ))
