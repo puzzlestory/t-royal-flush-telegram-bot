@@ -3,7 +3,13 @@ from json import load, dump
 from telegram.ext import Updater, CommandHandler
 
 from env import TOKEN
-from commands import start, show_command_handler, try_command_handler, Chall
+from commands import show_command_handler, try_command_handler, Chall
+
+def start(update, context):
+    welcome_txt = ['Hello, welcome to RoyalFlushBot!']
+    welcome_txt.append('The bot of "Royal Flush: A Puzzle Story", a puzzle hunt game about playing cards, poker hands, kings, queens and brain challenges.\n[Early Access Version]')
+
+    update.message.reply_text('\n'.join(welcome_txt))
 
 def main():
     updater = Updater(token=TOKEN, use_context=True)

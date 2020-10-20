@@ -1,5 +1,5 @@
 from os import path
-from json import load
+from json import load, dump
 from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
 
@@ -7,17 +7,31 @@ CUR_CHALL_IDX = str()
 SHOWS_CHOSEN_CHALL, CHOOSE_CHALL_TO_ANSWER = range(2)
 
 DATA_DIR = path.join('.', 'game_data')
+DATA_PATH = path.join(DATA_DIR, 'game_data.json')
+
+PROGRESS_PATH = path.join('.', 'users_progress', 'users_progress.json')
 
 class Chall:
     def __init__(self, name, description, answer):
         self.name = name
         self.description = description
         self.answer = answer
-        self.is_completed = False
+        self.is_completed = None
 
-DATA_PATH = path.join('game_data', 'game_data.json')
+def set_progress(challs, user_id):
+    with open(PROGRESS_PATH, 'r') as f:
+        users_progress = load(f)
 
-def load_data_from_csv():
+    if user_id not in users_progress.keys():
+        users_progress[user_id] = list()
+        with open(PROGRESS_PATH, "w") as f:
+            dump(users_progress, f)
+
+    for idx, c in challs.items():
+        if idx in users_progress[user_id]:
+            c.is_completed = True
+
+def load_data_from_csv(user_id):
     with open(DATA_PATH, 'r') as f:
         game_data = load(f)
 
@@ -28,19 +42,12 @@ def load_data_from_csv():
         chall = Chall(c_name, data['description'], data['answer'])
         challs[c_idx] = chall
 
+    set_progress(challs, str(user_id))
+
     return challs
 
-def start(update, context):
-    welcome_txt = ['Hello, welcome to RoyalFlushBot!']
-    welcome_txt.append('The bot of "Royal Flush: A Puzzle Story", a puzzle hunt game about playing cards, poker hands, kings, queens and brain challenges.\n[Early Access Version]')
-
-    user_id = update.message.from_user.id
-    context.chat_data[user_id] = load_data_from_csv()
-
-    update.message.reply_text('\n'.join(welcome_txt))
-
 def get_options_keyboard(data, user_id, mode):
-    if not user_id in data.keys(): data[user_id] = load_data_from_csv()
+    data[user_id] = load_data_from_csv(user_id)
     challs = data[user_id]
 
     if mode == 'TRY': names = [c.name for c in challs.values() if not c.is_completed]
@@ -128,6 +135,16 @@ def choose_chall_to_answer(update, context):
 
     return CHOOSE_CHALL_TO_ANSWER
 
+def save_user_progress(user_id):
+    with open(PROGRESS_PATH, 'r') as f:
+        cur_users_progress = load(f)
+
+    user_progress = cur_users_progress[user_id]
+    user_progress.append(CUR_CHALL_IDX)
+
+    with open(PROGRESS_PATH, 'w+') as f:
+        dump(cur_users_progress, f, indent=2)
+
 def check_answer(update, context):
     global CUR_CHALL_IDX
 
@@ -140,6 +157,7 @@ def check_answer(update, context):
     if user_answer == real_answer:
         result = 'Right answer! Congratulations!'
         challs[CUR_CHALL_IDX].is_completed = True
+        save_user_progress(str(user_id))
     else:
         result = 'Wrong answer. Try again!'
 
