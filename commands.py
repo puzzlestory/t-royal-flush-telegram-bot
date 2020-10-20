@@ -159,7 +159,7 @@ def check_answer(update, context):
         challs[CUR_CHALL_IDX].is_completed = True
         save_user_progress(str(user_id))
     else:
-        result = 'Wrong answer. Try again!'
+        result = 'Wrong answer, /try again!'
 
     update.message.reply_text(result)
 
