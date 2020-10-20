@@ -90,8 +90,11 @@ def choose_chall_to_show(update, context):
     name = ' '.join(name)
     description = challs[chall_idx].description
 
-    query.edit_message_text(text=f'Showing "{name}"\n')
-    send_description(description, user_id, context.bot)
+    bot = context.bot
+    bot.delete_message(chat_id=user_id, message_id=query.message.message_id)
+
+    bot.send_message(chat_id=user_id, text=f'Showing "{name}"\n')
+    send_description(description, user_id, bot)
 
     return ConversationHandler.END
 
@@ -158,7 +161,7 @@ try_command_handler = ConversationHandler(
     states={
         CHOOSE_CHALL_TO_ANSWER: [
             CallbackQueryHandler(choose_chall_to_answer),
-            MessageHandler(Filters.text, check_answer)
+            MessageHandler(~Filters.regex('^/'), check_answer)
         ]
     },
     fallbacks=[]
