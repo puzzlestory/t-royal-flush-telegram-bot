@@ -1,20 +1,21 @@
 from os import path
-from json import load, dump
-
+from json import load
+from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
-from telegram.ext import ConversationHandler
 
 CUR_CHALL_IDX = str()
 SHOWS_CHOSEN_CHALL, CHOOSE_CHALL_TO_ANSWER = range(2)
 
 DATA_DIR = path.join('.', 'game_data')
-DATA_PATH = path.join(DATA_DIR, 'game_data.json')
 
 class Chall:
     def __init__(self, name, description, answer):
         self.name = name
         self.description = description
         self.answer = answer
+        self.is_completed = False
+
+DATA_PATH = path.join('game_data', 'game_data.json')
 
 def load_data_from_csv():
     with open(DATA_PATH, 'r') as f:
@@ -29,11 +30,22 @@ def load_data_from_csv():
 
     return challs
 
-def get_options_keyboard(data):
-    challs = load_data_from_csv()
-    data['challs'] = challs
+def start(update, context):
+    welcome_txt = ['Hello, welcome to RoyalFlushBot!']
+    welcome_txt.append('The bot of "Royal Flush: A Puzzle Story", a puzzle hunt game about playing cards, poker hands, kings, queens and brain challenges.\n[Early Access Version]')
 
-    names = [c.name for c in challs.values()]
+    user_id = update.message.from_user.id
+    context.chat_data[user_id] = load_data_from_csv()
+
+    update.message.reply_text('\n'.join(welcome_txt))
+
+def get_options_keyboard(data, user_id, mode):
+    if not user_id in data.keys(): data[user_id] = load_data_from_csv()
+    challs = data[user_id]
+
+    if mode == 'TRY': names = [c.name for c in challs.values() if not c.is_completed]
+    elif mode == 'SHOW': names = [f"{c.name} ✅" if c.is_completed else c.name for c in challs.values()]
+
     keyboard = list()
     for i in range(len(names))[::2]:
         line_keys = [InlineKeyboardButton(names[i], callback_data=names[i]),]
@@ -45,8 +57,11 @@ def get_options_keyboard(data):
     return InlineKeyboardMarkup(keyboard)
 
 def show_challs(update, context):
-    reply_markup = get_options_keyboard(context.chat_data)
-    update.message.reply_text('Choose a challenge to view', reply_markup=reply_markup)
+    msg = update.message
+    user_id = msg.from_user.id
+
+    reply_markup = get_options_keyboard(context.chat_data, user_id, mode='SHOW')
+    msg.reply_text('Choose a challenge to view', reply_markup=reply_markup)
 
     return SHOWS_CHOSEN_CHALL
 
@@ -63,34 +78,48 @@ def send_description(description, chat_id, bot):
 
 def choose_chall_to_show(update, context):
     query = update.callback_query
-    query.answer()
-    chall_idx = query.data.split(' ')[0]
+    user_id = update.effective_user.id
 
-    challs = context.chat_data['challs']
-    name = challs[chall_idx].name
+    query.answer()
+
+    chall_idx = query.data.split(' ')[0]
+    challs = context.chat_data[user_id]
+
+    name = challs[chall_idx].name.split(' ')
+    name.remove(chall_idx)
+    name = ' '.join(name)
     description = challs[chall_idx].description
 
-    query.edit_message_text(text=f'Visu {name}\n')
-    send_description(description, update.effective_user.id, context.bot)
+    query.edit_message_text(text=f'Showing "{name}"\n')
+    send_description(description, user_id, context.bot)
 
     return ConversationHandler.END
 
 def try_answer(update, context):
-    reply_markup = get_options_keyboard(context.chat_data)
-    update.message.reply_text('Choose a challenge to try', reply_markup=reply_markup)
+    msg = update.message
+    user_id = msg.from_user.id
+
+    reply_markup = get_options_keyboard(context.chat_data, user_id, mode='TRY')
+    msg.reply_text('Choose a challenge to try', reply_markup=reply_markup)
 
     return CHOOSE_CHALL_TO_ANSWER
 
 def choose_chall_to_answer(update, context):
     global CUR_CHALL_IDX
+
     query = update.callback_query
+    user_id = update.effective_user.id
+
     query.answer()
 
     chall_idx = query.data.split(' ')[0]
+    challs = context.chat_data[user_id]
 
-    challs = context.chat_data['challs']
-    name = challs[chall_idx].name
-    query.edit_message_text(text=f'Tentando {name}, manda ae a resposta\n')
+    name = challs[chall_idx].name.split(' ')
+    name.remove(chall_idx)
+    name = ' '.join(name)
+
+    query.edit_message_text(text=f'Trying "{name}", type the answer')
 
     CUR_CHALL_IDX = chall_idx
 
@@ -98,15 +127,39 @@ def choose_chall_to_answer(update, context):
 
 def check_answer(update, context):
     global CUR_CHALL_IDX
-    challs = context.chat_data['challs']
+
+    user_id = update.message.from_user.id
+    challs = context.chat_data[user_id]
 
     real_answer = challs[CUR_CHALL_IDX].answer
     user_answer = update.message.text.lower()
 
-    if user_answer == real_answer: result = 'Parabens otaro'
-    else: result = 'Errou otaro'
+    if user_answer == real_answer:
+        result = 'Right answer! Congratulations!'
+        challs[CUR_CHALL_IDX].is_completed = True
+    else:
+        result = 'Wrong answer. Try again!'
 
     update.message.reply_text(result)
 
     CUR_CHALL_IDX = str()
     return ConversationHandler.END
+
+show_command_handler = ConversationHandler(
+    entry_points=[CommandHandler('show', show_challs)],
+    states={
+        SHOWS_CHOSEN_CHALL: [CallbackQueryHandler(choose_chall_to_show)],
+    },
+    fallbacks=[]
+)
+
+try_command_handler = ConversationHandler(
+    entry_points=[CommandHandler('try', try_answer)],
+    states={
+        CHOOSE_CHALL_TO_ANSWER: [
+            CallbackQueryHandler(choose_chall_to_answer),
+            MessageHandler(Filters.text, check_answer)
+        ]
+    },
+    fallbacks=[]
+)
