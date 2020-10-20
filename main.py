@@ -23,7 +23,5 @@ def main():
     updater.idle()
 
 if __name__ == '__main__':
-    print('=== BOT ATIVADO ===')
-    print('Digite Ctrl + C para desativar.')
+    print("Press CTRL + C to kill the bot")
     main()
-    print('=== BOT DESATIVADO ===')
