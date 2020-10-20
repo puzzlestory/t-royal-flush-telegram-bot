@@ -63,5 +63,10 @@
 		"name": "The Ace-Factor",
 		"description": ["the_ace-factor.jpg"],
 		"answer": "13"
+	},
+	"[14]": {
+		"name": "The Solitaire Diamond",
+		"description": ["the_solitaire_diamond.jpg"],
+		"answer": "14"
 	}
 }
