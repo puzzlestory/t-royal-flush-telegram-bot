@@ -9,7 +9,7 @@
 		"idx": "[Act 1 - A]",
 		"name": "Climbing Wonderland",
 		"description": ["climbing_wonderland.jpg"],
-		"answers": ["offheads"]
+		"answers": ["offheads", "headsoff"]
 	},
 	"long_live_the_king": {
 		"idx": "[Act 1 - B]",
