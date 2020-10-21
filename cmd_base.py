@@ -9,12 +9,12 @@ DATA_PATH = path.join(DATA_DIR, 'game_data.json')
 PROGRESS_PATH = path.join('.', 'users_progress', 'users_progress.json')
 
 class Chall:
-    def __init__(self, idx, name, description, answer):
+    def __init__(self, idx, name, description, answers):
         self.idx = idx
         self.name = name
         self.title = f'{idx} {name}'
         self.description = description
-        self.answer = answer
+        self.answers = answers
         self.is_completed = None
 
 def set_progress(challs, user_id):
@@ -37,7 +37,7 @@ def load_data_from_csv(user_id):
 
     challs = dict()
     for c_idx, data in game_data.items():
-        chall = Chall(data['idx'], data['name'], data['description'], data['answer'])
+        chall = Chall(data['idx'], data['name'], data['description'], data['answers'])
         challs[c_idx] = chall
 
     set_progress(challs, str(user_id))
@@ -45,7 +45,7 @@ def load_data_from_csv(user_id):
     return challs
 
 def get_options_keyboard(data, user_id, mode):
-    data[user_id] = load_data_from_csv(user_id)
+    if user_id not in data: data[user_id] = load_data_from_csv(user_id)
     challs = data[user_id]
 
     if mode == 'TRY':

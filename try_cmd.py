@@ -52,10 +52,10 @@ def check_answer(update, context):
     user_id = update.message.from_user.id
     challs = context.chat_data[user_id]
 
-    real_answer = challs[CUR_CHALL_IDX].answer
+    right_answers = challs[CUR_CHALL_IDX].answers
     user_answer = update.message.text.lower()
 
-    if user_answer == real_answer:
+    if user_answer in right_answers:
         result = 'Right answer! Congratulations!'
         challs[CUR_CHALL_IDX].is_completed = True
         save_user_progress(str(user_id))
