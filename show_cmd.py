@@ -1,7 +1,7 @@
 from os import path
 from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
 
-from cmd_base import Chall, get_options_keyboard, DATA_DIR
+from cmd_base import Chall, get_options_keyboard,  DATA_DIR
 
 SHOWS_CHOSEN_CHALL = range(1)
 

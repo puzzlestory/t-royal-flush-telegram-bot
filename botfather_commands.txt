@@ -1,0 +1,2 @@
+challs - shows available challs
+start - lets play?

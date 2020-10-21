@@ -58,3 +58,28 @@ def get_options_keyboard(data, user_id, mode):
     keyboard = [[InlineKeyboardButton(t, callback_data=k)] for t, k in zip(titles, keys)]
 
     return InlineKeyboardMarkup(keyboard)
+
+def save_user_progress(user_id, context):
+    user_data_str = read_dp(user_id)
+
+    if user_data_str:
+        user_progress = loads(user_data_str)['progress']
+    else:
+        user_progress = list()
+
+    user_progress.append(context.user_data['cur_chall_idx'])
+    user_data_str = dumps({'progress': user_progress}, indent=2)
+    write_dp(user_id, user_data_str)
+
+def send_description(description, chat_id, bot):
+    for d_filename in description:
+        d_filename = path.join(DATA_DIR, d_filename)
+
+        if d_filename.endswith('.jpg'):
+            d_photo = open(d_filename, 'rb')
+            bot_message = bot.send_photo(chat_id=chat_id, photo=d_photo)
+        elif d_filename.endswith('.txt'):
+            d_txt = open(d_filename).read()
+            bot_message = bot.send_message(chat_id=chat_id, text=f'<code>{d_txt}</code>', parse_mode='HTML')
+    
+    return bot_message
