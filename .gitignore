@@ -1,4 +1,4 @@
 env.py
 Procfile
-/game_data
-/__pycache__
+game_data/
+__pycache__/

@@ -1,9 +1,8 @@
-from os import path
-from json import load, dump
-from telegram.ext import Updater, CommandHandler
-
+from puzzles_menu import puzzles_menu
 from env import TOKEN
-from commands import show_command_handler, try_command_handler, Chall
+from os import path
+from telegram.ext import Updater, CommandHandler
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
 def start(update, context):
     welcome_txt = ['Hello, welcome to Puzzle Story, a bot with puzzle hunt games to play free.\nAt the time, we are in Early Access of our first game, "Royal Flush: A Puzzle Story", with puzzles about playing cards, kings and queens.']
@@ -16,12 +15,14 @@ def main():
     updater = Updater(token=TOKEN, use_context=True)
     dp = updater.dispatcher
 
-    dp.add_handler(CommandHandler('start', start))
-    dp.add_handler(show_command_handler)
-    dp.add_handler(try_command_handler)
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(puzzles_menu)
 
     updater.start_polling()
+    print("++++++++++ STARTING BOT +++++++++++")
     updater.idle()
+    print("++++++++++  KILLING BOT  ++++++++++")
+
 
 if __name__ == '__main__':
     print("Press CTRL + C to kill the bot")
